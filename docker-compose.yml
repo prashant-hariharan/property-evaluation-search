@@ -1,0 +1,22 @@
+services:
+  mariadb:
+    image: mariadb:11.0.6
+    container_name: mariadb-poc
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: property_search
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mariadb_data:

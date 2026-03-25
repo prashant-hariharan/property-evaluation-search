@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: property-evaluation
+  datasource:
+    url: ${DB_URL:jdbc:mariadb://localhost:3306/property_search}
+    username: ${DB_USER:admin}
+    password: ${DB_PASSWORD:admin123}
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+        order_updates: true
+        type:
+          preferred_uuid_jdbc_type: BINARY
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    version: OPENAPI_3_0
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+logging:
+  level:
+    liquibase: INFO
+    org.springframework.boot.liquibase: DEBUG
+
+app:
+  search:
+    log-queries: false
+  lucene:
+    index-path: ${LUCENE_INDEX_PATH:./index/lucene/${spring.application.name}}
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+info:
+  app:
+    name: property-evaluation-search-api
+    version: 0.0.1-SNAPSHOT
+    description: Lucene vs MariaDB FTS POC

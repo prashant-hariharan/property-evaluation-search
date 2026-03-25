@@ -1,0 +1,385 @@
+{
+  "info": {
+    "_postman_id": "cf8526ab-e172-42ef-b4bd-f05399519c56",
+    "name": "Property Evaluation Search - All In One",
+    "description": "Single import collection with setup, Lucene demo, MariaDB FTS demo, and side-by-side comparison scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "30434122",
+    "_collection_link": "https://go.postman.co/collection/30434122-cf8526ab-e172-42ef-b4bd-f05399519c56?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01 Setup and Data",
+      "item": [
+        {
+          "name": "Generate Test Data (No Reindex)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lucene/test-data/generate?propertyCount=200000&batchSize=200&clearExistingData=true&reindexAfterGeneration=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lucene",
+                "test-data",
+                "generate"
+              ],
+              "query": [
+                {
+                  "key": "propertyCount",
+                  "value": "200000"
+                },
+                {
+                  "key": "batchSize",
+                  "value": "200"
+                },
+                {
+                  "key": "clearExistingData",
+                  "value": "true"
+                },
+                {
+                  "key": "reindexAfterGeneration",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reindex All (Manual)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lucene/reindex",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lucene",
+                "reindex"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 Side By Side Comparison",
+      "item": [
+        {
+          "name": "1 - Baseline (Works on Both)",
+          "item": [
+            {
+              "name": "Lucene - Baseline Keyword Search",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"Natural Light\",\n  \"city\": \"Nuremberg\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/lucene/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "MariaDB FTS - Baseline Keyword Search",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"Natural Light\",\n  \"city\": \"Nuremberg\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mariadb-fts/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mariadb-fts",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Lucene - multi criteria query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"waterfront loft\",\n  \"city\": \"Frankfurt\",\n  \"propertyType\": \"APARTMENT\",\n  \"minAreaInSquareMeter\": 79,\n  \"maxAreaInSquareMeter\": 92,\n  \"minMarketValue\": 640000,\n  \"maxMarketValue\": 735000,\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/lucene/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "MariaDB FTS - Multi criteria Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"waterfront loft\",\n  \"city\": \"Frankfurt\",\n  \"propertyType\": \"APARTMENT\",\n  \"minAreaInSquareMeter\": 79,\n  \"maxAreaInSquareMeter\": 92,\n  \"minMarketValue\": 640000,\n  \"maxMarketValue\": 735000,\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mariadb-fts/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mariadb-fts",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "2 - Synonym",
+          "item": [
+            {
+              "name": "Lucene - Synonym Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"flat with parking\",\n  \"city\": \"Berlin\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/lucene/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "MariaDB FTS - Synonym Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"flat with parking\",\n  \"city\": \"Berlin\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mariadb-fts/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mariadb-fts",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "3 - Fuzzy City",
+          "item": [
+            {
+              "name": "Lucene - Fuzzy City Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"flat\",\n  \"city\": \"Berln\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/lucene/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "MariaDB FTS - Fuzzy City Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"flat\",\n  \"city\": \"Berln\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mariadb-fts/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mariadb-fts",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "4 - Title Boosting",
+          "item": [
+            {
+              "name": "Lucene - Title Boosting Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"waterfront loft\",\n  \"city\": \"Frankfurt\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/lucene/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "MariaDB FTS - Title Boosting Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"waterfront loft\",\n  \"city\": \"Frankfurt\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mariadb-fts/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mariadb-fts",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}

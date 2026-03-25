@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-create-property-evaluations.sql
+  - include:
+      file: db/changelog/changes/002-add-property-evaluations-indexes.sql
+  - include:
+      file: db/changelog/changes/003-add-mariadb-fts-indexes.sql

@@ -1,0 +1,54 @@
+﻿[
+    {
+        "scenario":  "baseline_natural_light",
+        "engine":  "lucene",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  18.614,
+        "p50Ms":  17.672,
+        "p95Ms":  25.991,
+        "minMs":  12.548,
+        "maxMs":  27.46,
+        "totalHits":  276,
+        "measuredAt":  "2026-03-23T19:42:42"
+    },
+    {
+        "scenario":  "baseline_natural_light",
+        "engine":  "mariadb-fts",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  160.347,
+        "p50Ms":  157.233,
+        "p95Ms":  181.534,
+        "minMs":  148.28,
+        "maxMs":  184.553,
+        "totalHits":  276,
+        "measuredAt":  "2026-03-23T19:42:48"
+    },
+    {
+        "scenario":  "modern_area_berlin",
+        "engine":  "lucene",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  18.646,
+        "p50Ms":  18.745,
+        "p95Ms":  21.796,
+        "minMs":  14.518,
+        "maxMs":  22.958,
+        "totalHits":  1080,
+        "measuredAt":  "2026-03-23T19:42:49"
+    },
+    {
+        "scenario":  "modern_area_berlin",
+        "engine":  "mariadb-fts",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  287.53,
+        "p50Ms":  271.279,
+        "p95Ms":  373.167,
+        "minMs":  251.223,
+        "maxMs":  391.584,
+        "totalHits":  1080,
+        "measuredAt":  "2026-03-23T19:42:59"
+    }
+]
