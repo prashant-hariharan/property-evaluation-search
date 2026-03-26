@@ -57,6 +57,18 @@ public class TestDataGenerationService {
             "Modern interiors with premium finishes and storage space",
             "Commuter-friendly location close to metro and tram stops"
     };
+    private static final GeoPoint BERLIN_CENTER = new GeoPoint(52.520008, 13.404954);
+    private static final GeoPoint FRANKFURT_CENTER = new GeoPoint(50.110924, 8.682127);
+    private static final GeoPoint MUNICH_CENTER = new GeoPoint(48.137154, 11.576124);
+    private static final GeoPoint HAMBURG_CENTER = new GeoPoint(53.551086, 9.993682);
+    private static final GeoPoint COLOGNE_CENTER = new GeoPoint(50.937531, 6.960279);
+    private static final GeoPoint NUREMBERG_CENTER = new GeoPoint(49.452103, 11.076665);
+    private static final GeoPoint BONN_CENTER = new GeoPoint(50.737430, 7.098207);
+    private static final GeoPoint STUTTGART_CENTER = new GeoPoint(48.775846, 9.182932);
+    private static final GeoPoint DUSSELDORF_CENTER = new GeoPoint(51.227741, 6.773456);
+    private static final GeoPoint LEIPZIG_CENTER = new GeoPoint(51.339695, 12.373075);
+    private static final GeoPoint DRESDEN_CENTER = new GeoPoint(51.050407, 13.737262);
+    private static final GeoPoint BREMEN_CENTER = new GeoPoint(53.079296, 8.801694);
 
     private final PropertyRepository propertyRepository;
     private final PropertyEvaluationRepository propertyEvaluationRepository;
@@ -143,6 +155,7 @@ public class TestDataGenerationService {
         String street = STREET_VALUES[random.nextInt(STREET_VALUES.length)];
         PropertyType propertyType = PropertyType.values()[random.nextInt(PropertyType.values().length)];
         BigDecimal areaInSquareMeter = scaled(random.nextDouble(30.0, 350.0));
+        GeoPoint geoPoint = randomGeoPoint(city);
 
         return Property.builder()
                 .title("Property " + sequence + " in " + city)
@@ -153,6 +166,8 @@ public class TestDataGenerationService {
                 .constructionYear(random.nextInt(1950, 2026))
                 .propertyType(propertyType)
                 .description(DESCRIPTION_VALUES[random.nextInt(DESCRIPTION_VALUES.length)])
+                .latitude(geoPoint.latitude())
+                .longitude(geoPoint.longitude())
                 .build();
     }
 
@@ -190,6 +205,8 @@ public class TestDataGenerationService {
                     .constructionYear(2018)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Bright apartment close to tram and river walk with fast metro access")
+                    .latitude(cityGeoPoint(BERLIN).latitude())
+                    .longitude(cityGeoPoint(BERLIN).longitude())
                     .build();
         }
         if (sequence == 2) {
@@ -202,6 +219,8 @@ public class TestDataGenerationService {
                     .constructionYear(2019)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Open layout with industrial finishes and panoramic skyline interior")
+                    .latitude(cityGeoPoint(FRANKFURT).latitude())
+                    .longitude(cityGeoPoint(FRANKFURT).longitude())
                     .build();
         }
         if (sequence == 3) {
@@ -214,6 +233,8 @@ public class TestDataGenerationService {
                     .constructionYear(2020)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Premium waterfront apartment with direct lift access and open loft plan")
+                    .latitude(cityGeoPoint(FRANKFURT).latitude())
+                    .longitude(cityGeoPoint(FRANKFURT).longitude())
                     .build();
         }
         if (sequence == 4) {
@@ -226,6 +247,8 @@ public class TestDataGenerationService {
                     .constructionYear(2017)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Waterfront loft inspired apartment with bright living area")
+                    .latitude(cityGeoPoint(FRANKFURT).latitude())
+                    .longitude(cityGeoPoint(FRANKFURT).longitude())
                     .build();
         }
         if (sequence == 5) {
@@ -238,6 +261,8 @@ public class TestDataGenerationService {
                     .constructionYear(2016)
                     .propertyType(PropertyType.APARTMENT)
                     .description("River district location with renovated open plan design")
+                    .latitude(cityGeoPoint(FRANKFURT).latitude())
+                    .longitude(cityGeoPoint(FRANKFURT).longitude())
                     .build();
         }
         if (sequence == 6) {
@@ -250,6 +275,8 @@ public class TestDataGenerationService {
                     .constructionYear(2015)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Well connected home with school metro access and family-friendly surroundings")
+                    .latitude(cityGeoPoint(BERLIN).latitude())
+                    .longitude(cityGeoPoint(BERLIN).longitude())
                     .build();
         }
         if (sequence == 7) {
@@ -262,6 +289,8 @@ public class TestDataGenerationService {
                     .constructionYear(2014)
                     .propertyType(PropertyType.APARTMENT)
                     .description("City center apartment offering direct school metro access for commuters")
+                    .latitude(cityGeoPoint(BERLIN).latitude())
+                    .longitude(cityGeoPoint(BERLIN).longitude())
                     .build();
         }
         if (sequence == 8) {
@@ -274,6 +303,8 @@ public class TestDataGenerationService {
                     .constructionYear(2013)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Renovated apartment with efficient layout close to daily amenities")
+                    .latitude(cityGeoPoint("Munich").latitude())
+                    .longitude(cityGeoPoint("Munich").longitude())
                     .build();
         }
         if (sequence == 9) {
@@ -286,6 +317,8 @@ public class TestDataGenerationService {
                     .constructionYear(2012)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Well-maintained home with practical floor plan in central district")
+                    .latitude(cityGeoPoint("Hamburg").latitude())
+                    .longitude(cityGeoPoint("Hamburg").longitude())
                     .build();
         }
         if (sequence == 10) {
@@ -298,6 +331,8 @@ public class TestDataGenerationService {
                     .constructionYear(2011)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Comfortable apartment with balanced room sizes and modern finishes")
+                    .latitude(cityGeoPoint("Cologne").latitude())
+                    .longitude(cityGeoPoint("Cologne").longitude())
                     .build();
         }
         if (sequence == 11) {
@@ -310,6 +345,8 @@ public class TestDataGenerationService {
                     .constructionYear(2010)
                     .propertyType(PropertyType.APARTMENT)
                     .description("Clean and functional apartment suitable for long-term occupancy")
+                    .latitude(cityGeoPoint("Stuttgart").latitude())
+                    .longitude(cityGeoPoint("Stuttgart").longitude())
                     .build();
         }
         return Property.builder()
@@ -321,6 +358,8 @@ public class TestDataGenerationService {
                 .constructionYear(2009)
                 .propertyType(PropertyType.APARTMENT)
                 .description("Move-in ready apartment with natural light and compact storage solutions")
+                .latitude(cityGeoPoint("Nuremberg").latitude())
+                .longitude(cityGeoPoint("Nuremberg").longitude())
                 .build();
     }
 
@@ -366,6 +405,42 @@ public class TestDataGenerationService {
             return scaled(505000.00);
         }
         return scaled(property.getAreaInSquareMeter().doubleValue() * 5000.0);
+    }
+
+    private GeoPoint randomGeoPoint(String city) {
+        GeoPoint center = cityGeoPoint(city);
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        double lat = center.latitude().doubleValue() + random.nextDouble(-0.08d, 0.08d);
+        double lon = center.longitude().doubleValue() + random.nextDouble(-0.12d, 0.12d);
+        return new GeoPoint(scaledGeo(lat), scaledGeo(lon));
+    }
+
+    private GeoPoint cityGeoPoint(String city) {
+        return switch (city) {
+            case BERLIN -> BERLIN_CENTER;
+            case FRANKFURT -> FRANKFURT_CENTER;
+            case "Munich" -> MUNICH_CENTER;
+            case "Hamburg" -> HAMBURG_CENTER;
+            case "Cologne" -> COLOGNE_CENTER;
+            case "Nuremberg" -> NUREMBERG_CENTER;
+            case "Bonn" -> BONN_CENTER;
+            case "Stuttgart" -> STUTTGART_CENTER;
+            case "Dusseldorf" -> DUSSELDORF_CENTER;
+            case "Leipzig" -> LEIPZIG_CENTER;
+            case "Dresden" -> DRESDEN_CENTER;
+            case "Bremen" -> BREMEN_CENTER;
+            default -> BERLIN_CENTER;
+        };
+    }
+
+    private BigDecimal scaledGeo(double value) {
+        return BigDecimal.valueOf(value).setScale(6, RoundingMode.HALF_UP);
+    }
+
+    private record GeoPoint(BigDecimal latitude, BigDecimal longitude) {
+        private GeoPoint(double latitude, double longitude) {
+            this(BigDecimal.valueOf(latitude), BigDecimal.valueOf(longitude));
+        }
     }
 
     public record TestDataGenerationSummary(

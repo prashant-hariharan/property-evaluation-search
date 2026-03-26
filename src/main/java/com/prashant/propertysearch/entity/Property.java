@@ -75,4 +75,10 @@ public class Property extends AuditableEntity {
     @Column(columnDefinition = "TEXT")
     @Size(max = 2000)
     private String description;
+
+    @Column(precision = 9, scale = 6)
+    private BigDecimal latitude;
+
+    @Column(precision = 9, scale = 6)
+    private BigDecimal longitude;
 }

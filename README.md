@@ -128,7 +128,7 @@ Notes:
 Use the all-in-one collection:
 
 - [property-evaluation-search-all-in-one.postman_collection.json](postman-collection/property-evaluation-search-all-in-one.postman_collection.json)
-  Includes top-level folders for setup/data and side-by-side comparison scenarios.
+  Includes top-level folders for setup/data and side-by-side comparison scenarios, including geo-radius requests.
 
 ## Data Loading and Indexing (Required)
 
@@ -139,7 +139,7 @@ You can invoke these endpoints either via Swagger UI or the Postman collection.
 2. `POST /api/lucene/reindex`
 
 This loads benchmark data first and then builds the Lucene index with lower overall load.
-`/api/lucene/test-data/generate` creates synthetic properties/evaluations (including deterministic comparison fixtures) in batches, and `/api/lucene/reindex` rebuilds the Lucene index from database records.
+`/api/lucene/test-data/generate` creates synthetic properties/evaluations (including deterministic comparison fixtures and city-based geo coordinates) in batches, and `/api/lucene/reindex` rebuilds the Lucene index from database records.
 
 ## Benchmark (Optional)
 
@@ -176,6 +176,7 @@ Output:
 Scenarios measured:
 - `baseline_natural_light - Keyword + City + Property Type search`
 - `modern_area_berlin - Keyword + City + Property Type + Area Range search`
+- `geo_modern_berlin_5km - Keyword + City + Geo Radius search`
 
 ## Additional Notes
 
@@ -192,10 +193,12 @@ At startup, the application runs database migrations that:
 Lucene index fields used by this project:
 - Text search fields: `title`, `description` (analyzed with `StandardTokenizer -> LowerCaseFilter -> SynonymGraphFilter`)
 - Exact/filter fields: `propertyType`, `cityFilter`, `postalCodeFilter`
+- Geo field: `geoPoint` (distance filtering) with stored `latitude`/`longitude`
 - Numeric range fields: `areaInSquareMeter`, `evaluationMarketValue`
 
 MariaDB search indexes used by this project:
 - Full-text index: `ftx_properties_title_description` on `properties(title, description)`
+- Query-time geo filter: `ST_Distance_Sphere(POINT(longitude, latitude), POINT(:centerLongitude, :centerLatitude))`
 
 ### Lucene Setup Notes
 
@@ -204,5 +207,6 @@ Analyzer and index/storage behavior used by this project:
 - Index location: `app.lucene.index-path` (defaults to `target/lucene-index`)
 - Directory implementation: Lucene `FSDirectory`
 - Analyzer pipeline: `StandardTokenizer` -> `LowerCaseFilter` -> `SynonymGraphFilter`
+- Geo filtering: Lucene `LatLonPoint.newDistanceQuery(...)` on `geoPoint`
 - Synonym pairs (bidirectional): `flat <-> apartment`, `garage <-> parking`, `metro <-> subway`, `loft <-> studio`
 

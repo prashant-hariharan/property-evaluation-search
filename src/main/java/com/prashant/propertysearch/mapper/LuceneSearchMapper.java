@@ -11,6 +11,8 @@ import java.util.UUID;
 public interface LuceneSearchMapper {
 
     @Mapping(target = "propertyId", expression = "java(toUuid(propertyId))")
+    @Mapping(target = "latitude", expression = "java(toBigDecimal(latitude))")
+    @Mapping(target = "longitude", expression = "java(toBigDecimal(longitude))")
     @Mapping(target = "areaInSquareMeter", expression = "java(toBigDecimal(areaInSquareMeter))")
     @Mapping(target = "evaluationMarketValue", expression = "java(toBigDecimal(evaluationMarketValue))")
     SearchHitResponse toSearchHit(
@@ -20,6 +22,8 @@ public interface LuceneSearchMapper {
             String postalCode,
             String propertyType,
             String description,
+            Double latitude,
+            Double longitude,
             Double areaInSquareMeter,
             Double evaluationMarketValue,
             float score

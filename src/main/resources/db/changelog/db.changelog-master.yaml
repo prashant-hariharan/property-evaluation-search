@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changes/002-add-property-evaluations-indexes.sql
   - include:
       file: db/changelog/changes/003-add-mariadb-fts-indexes.sql
+  - include:
+      file: db/changelog/changes/004-add-property-geospatial-columns.sql

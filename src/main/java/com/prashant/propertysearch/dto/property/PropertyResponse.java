@@ -20,4 +20,6 @@ public class PropertyResponse extends AuditableResponse {
     private Integer constructionYear;
     private PropertyType propertyType;
     private String description;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
 }

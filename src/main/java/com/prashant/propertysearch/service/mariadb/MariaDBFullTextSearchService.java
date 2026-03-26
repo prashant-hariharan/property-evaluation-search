@@ -51,6 +51,9 @@ public class MariaDBFullTextSearchService {
                 request.maxAreaInSquareMeter(),
                 request.minMarketValue(),
                 request.maxMarketValue(),
+                request.centerLatitude(),
+                request.centerLongitude(),
+                request.radiusInKilometers(),
                 pageable
         );
 
@@ -62,7 +65,10 @@ public class MariaDBFullTextSearchService {
                 request.minAreaInSquareMeter(),
                 request.maxAreaInSquareMeter(),
                 request.minMarketValue(),
-                request.maxMarketValue()
+                request.maxMarketValue(),
+                request.centerLatitude(),
+                request.centerLongitude(),
+                request.radiusInKilometers()
         );
 
         List<SearchHitResponse> hits = rows.stream()

@@ -13,6 +13,9 @@ public final class LuceneDocumentFields {
     public static final String POSTAL_CODE = "postalCode";
     public static final String PROPERTY_TYPE = "propertyType";
     public static final String DESCRIPTION = "description";
+    public static final String GEO_POINT = "geoPoint";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
     public static final String AREA_IN_SQUARE_METER = "areaInSquareMeter";
     public static final String EVALUATION_MARKET_VALUE = "evaluationMarketValue";
     public static final String CITY_FILTER = "cityFilter";
