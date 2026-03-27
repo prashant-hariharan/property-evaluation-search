@@ -9,6 +9,8 @@ public interface MariaDbFtsSearchProjection {
     String getPostalCode();
     String getPropertyType();
     String getDescription();
+    BigDecimal getLatitude();
+    BigDecimal getLongitude();
     BigDecimal getAreaInSquareMeter();
     BigDecimal getEvaluationMarketValue();
     Double getScore();

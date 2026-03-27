@@ -11,6 +11,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoublePoint;
+import org.apache.lucene.document.LatLonPoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -43,6 +44,9 @@ import static com.prashant.propertysearch.utils.LuceneDocumentFields.CITY;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.CITY_FILTER;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.DESCRIPTION;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.EVALUATION_MARKET_VALUE;
+import static com.prashant.propertysearch.utils.LuceneDocumentFields.GEO_POINT;
+import static com.prashant.propertysearch.utils.LuceneDocumentFields.LATITUDE;
+import static com.prashant.propertysearch.utils.LuceneDocumentFields.LONGITUDE;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.POSTAL_CODE;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.POSTAL_CODE_FILTER;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.PROPERTY_ID;
@@ -152,7 +156,39 @@ public class LuceneSearchService {
                     BooleanClause.Occur.FILTER
             );
         }
+
+        boolean hasCompleteGeoFilter = hasCompleteGeoFilter(request);
+        boolean hasPartialGeoFilter = hasAnyGeoFilter(request) && !hasCompleteGeoFilter;
+        if (hasPartialGeoFilter) {
+            throw new IllegalArgumentException(
+                    "centerLatitude, centerLongitude, and radiusInKilometers must all be provided together"
+            );
+        }
+
+        if (hasCompleteGeoFilter) {
+            builder.add(
+                    LatLonPoint.newDistanceQuery(
+                            GEO_POINT,
+                            request.centerLatitude().doubleValue(),
+                            request.centerLongitude().doubleValue(),
+                            request.radiusInKilometers().doubleValue() * 1000.0d
+                    ),
+                    BooleanClause.Occur.FILTER
+            );
+        }
         return builder.build();
+    }
+
+    private boolean hasAnyGeoFilter(SearchRequest request) {
+        return request.centerLatitude() != null
+                || request.centerLongitude() != null
+                || request.radiusInKilometers() != null;
+    }
+
+    private boolean hasCompleteGeoFilter(SearchRequest request) {
+        return request.centerLatitude() != null
+                && request.centerLongitude() != null
+                && request.radiusInKilometers() != null;
     }
 
     private Query buildCityFilterQuery(String city) {
@@ -234,6 +270,12 @@ public class LuceneSearchService {
         Double evaluationMarketValue = document.getField(EVALUATION_MARKET_VALUE) == null
                 ? null
                 : document.getField(EVALUATION_MARKET_VALUE).numericValue().doubleValue();
+        Double latitude = document.getField(LATITUDE) == null
+                ? null
+                : document.getField(LATITUDE).numericValue().doubleValue();
+        Double longitude = document.getField(LONGITUDE) == null
+                ? null
+                : document.getField(LONGITUDE).numericValue().doubleValue();
 
         return luceneSearchMapper.toSearchHit(
                 document.get(PROPERTY_ID),
@@ -242,6 +284,8 @@ public class LuceneSearchService {
                 document.get(POSTAL_CODE),
                 document.get(PROPERTY_TYPE),
                 document.get(DESCRIPTION),
+                latitude,
+                longitude,
                 areaInSquareMeter,
                 evaluationMarketValue,
                 score

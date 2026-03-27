@@ -92,6 +92,7 @@ compute_stats() {
 SCENARIOS=(
   "baseline_natural_light|{\"queryText\":\"Natural Light\",\"city\":\"Nuremberg\",\"propertyType\":\"APARTMENT\",\"limit\":20}"
   "modern_area_berlin|{\"queryText\":\"modern\",\"city\":\"Berlin\",\"minAreaInSquareMeter\":50,\"maxAreaInSquareMeter\":150,\"limit\":20}"
+  "geo_modern_berlin_5km|{\"queryText\":\"modern\",\"city\":\"Berlin\",\"centerLatitude\":52.520008,\"centerLongitude\":13.404954,\"radiusInKilometers\":5,\"limit\":20}"
 )
 
 assert_app_running

@@ -4,6 +4,8 @@ import com.prashant.propertysearch.event.PropertyChangedEvent;
 import com.prashant.propertysearch.event.PropertyEvaluationChangedEvent;
 import com.prashant.propertysearch.service.lucene.LuceneIndexerService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -21,6 +23,11 @@ public class PropertySearchIndexEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async("propertySearchIndexTaskExecutor")
+    @Retryable(
+        retryFor = IllegalStateException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1500)
+    )
     public void onPropertyChanged(PropertyChangedEvent event) {
         try {
             if (event.action() == PropertyChangedEvent.Action.DELETE) {
@@ -30,9 +37,10 @@ public class PropertySearchIndexEventListener {
             luceneIndexerService.upsertPropertyDocument(event.propertyId());
         } catch (Exception e) {
             log.error("Failed to modify Lucene index for property change. action={} propertyId={} error={}",
-                    event.action(),
-                    event.propertyId(),
-                    e.getMessage()
+                event.action(),
+                event.propertyId(),
+                e.getMessage(),
+                e
             );
             throw e;
         }
@@ -40,13 +48,19 @@ public class PropertySearchIndexEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async("propertySearchIndexTaskExecutor")
+    @Retryable(
+        retryFor = IllegalStateException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1500)
+    )
     public void onPropertyEvaluationChanged(PropertyEvaluationChangedEvent event) {
         try {
             luceneIndexerService.upsertPropertyDocument(event.propertyId());
         } catch (Exception e) {
             log.error("Failed to modify Lucene index for property evaluation change. propertyId={} error={}",
-                    event.propertyId(),
-                    e.getMessage()
+                event.propertyId(),
+                e.getMessage(),
+                e
             );
             throw e;
         }

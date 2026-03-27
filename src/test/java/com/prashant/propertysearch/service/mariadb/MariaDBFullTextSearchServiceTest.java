@@ -46,6 +46,9 @@ class MariaDBFullTextSearchServiceTest {
                 null,
                 null,
                 null,
+                null,
+                null,
+                null,
                 10
         );
         MariaDbFtsSearchProjection row = org.mockito.Mockito.mock(MariaDbFtsSearchProjection.class);
@@ -61,6 +64,9 @@ class MariaDBFullTextSearchServiceTest {
                 eq(null),
                 eq(null),
                 eq(null),
+                eq(null),
+                eq(null),
+                eq(null),
                 any(Pageable.class)
         )).thenReturn(List.of(row));
         when(mariaDBFullTextSearchRepository.countByFullText(
@@ -68,6 +74,9 @@ class MariaDBFullTextSearchServiceTest {
                 eq("Berlin"),
                 eq(null),
                 eq("APARTMENT"),
+                eq(null),
+                eq(null),
+                eq(null),
                 eq(null),
                 eq(null),
                 eq(null),
@@ -93,21 +102,24 @@ class MariaDBFullTextSearchServiceTest {
                 null,
                 null,
                 null,
+                null,
+                null,
+                null,
                 null
         );
 
         when(mariaDBFullTextSearchRepository.searchByFullText(
-                any(), any(), any(), any(), any(), any(), any(), any(), any(Pageable.class)
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(Pageable.class)
         )).thenReturn(List.of());
         when(mariaDBFullTextSearchRepository.countByFullText(
-                any(), any(), any(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
         )).thenReturn(0L);
 
         mariaDBFullTextSearchService.search(request);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(mariaDBFullTextSearchRepository).searchByFullText(
-                any(), any(), any(), any(), any(), any(), any(), any(), pageableCaptor.capture()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), pageableCaptor.capture()
         );
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(20);
     }

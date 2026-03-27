@@ -16,6 +16,9 @@ public interface MariaDBFullTextSearchRepository {
             BigDecimal maxAreaInSquareMeter,
             BigDecimal minMarketValue,
             BigDecimal maxMarketValue,
+            BigDecimal centerLatitude,
+            BigDecimal centerLongitude,
+            BigDecimal radiusInKilometers,
             Pageable pageable
     );
 
@@ -27,6 +30,9 @@ public interface MariaDBFullTextSearchRepository {
             BigDecimal minAreaInSquareMeter,
             BigDecimal maxAreaInSquareMeter,
             BigDecimal minMarketValue,
-            BigDecimal maxMarketValue
+            BigDecimal maxMarketValue,
+            BigDecimal centerLatitude,
+            BigDecimal centerLongitude,
+            BigDecimal radiusInKilometers
     );
 }

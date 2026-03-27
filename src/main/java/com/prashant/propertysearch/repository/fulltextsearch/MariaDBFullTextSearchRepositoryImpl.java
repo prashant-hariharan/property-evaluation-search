@@ -27,6 +27,8 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
                 p.postal_code AS postalCode,
                 p.property_type AS propertyType,
                 p.description AS description,
+                p.latitude AS latitude,
+                p.longitude AS longitude,
                 p.area_in_square_meter AS areaInSquareMeter,
                 pe_latest.market_value AS evaluationMarketValue,
                 CASE
@@ -63,6 +65,19 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
             AND (:maxAreaInSquareMeter IS NULL OR p.area_in_square_meter <= :maxAreaInSquareMeter)
             AND (:minMarketValue IS NULL OR pe_latest.market_value >= :minMarketValue)
             AND (:maxMarketValue IS NULL OR pe_latest.market_value <= :maxMarketValue)
+            AND (
+                :centerLatitude IS NULL
+                OR :centerLongitude IS NULL
+                OR :radiusMeters IS NULL
+                OR (
+                    p.latitude IS NOT NULL
+                    AND p.longitude IS NOT NULL
+                    AND ST_Distance_Sphere(
+                        POINT(p.longitude, p.latitude),
+                        POINT(:centerLongitude, :centerLatitude)
+                    ) <= :radiusMeters
+                )
+            )
             """;
 
     private static final String ORDER_BY_CLAUSE = " ORDER BY score DESC, p.created_at DESC, p.id";
@@ -85,10 +100,14 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
             BigDecimal maxAreaInSquareMeter,
             BigDecimal minMarketValue,
             BigDecimal maxMarketValue,
+            BigDecimal centerLatitude,
+            BigDecimal centerLongitude,
+            BigDecimal radiusInKilometers,
             Pageable pageable
     ) {
         Map<String, Object> params = buildParams(queryText, city, postalCode, propertyType,
-                minAreaInSquareMeter, maxAreaInSquareMeter, minMarketValue, maxMarketValue);
+                minAreaInSquareMeter, maxAreaInSquareMeter, minMarketValue, maxMarketValue,
+                centerLatitude, centerLongitude, radiusInKilometers);
         if (logSearchQueries) {
             log.info("MariaDB FTS search SQL: {}", renderSqlForLogging(SEARCH_SQL, params));
         }
@@ -112,10 +131,14 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
             BigDecimal minAreaInSquareMeter,
             BigDecimal maxAreaInSquareMeter,
             BigDecimal minMarketValue,
-            BigDecimal maxMarketValue
+            BigDecimal maxMarketValue,
+            BigDecimal centerLatitude,
+            BigDecimal centerLongitude,
+            BigDecimal radiusInKilometers
     ) {
         Map<String, Object> params = buildParams(queryText, city, postalCode, propertyType,
-                minAreaInSquareMeter, maxAreaInSquareMeter, minMarketValue, maxMarketValue);
+                minAreaInSquareMeter, maxAreaInSquareMeter, minMarketValue, maxMarketValue,
+                centerLatitude, centerLongitude, radiusInKilometers);
         if (logSearchQueries) {
             log.debug("MariaDB FTS count SQL: {}", renderSqlForLogging(COUNT_SQL, params));
         }
@@ -133,7 +156,10 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
             BigDecimal minAreaInSquareMeter,
             BigDecimal maxAreaInSquareMeter,
             BigDecimal minMarketValue,
-            BigDecimal maxMarketValue
+            BigDecimal maxMarketValue,
+            BigDecimal centerLatitude,
+            BigDecimal centerLongitude,
+            BigDecimal radiusInKilometers
     ) {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("queryText", queryText);
@@ -144,6 +170,9 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
         params.put("maxAreaInSquareMeter", maxAreaInSquareMeter);
         params.put("minMarketValue", minMarketValue);
         params.put("maxMarketValue", maxMarketValue);
+        params.put("centerLatitude", centerLatitude);
+        params.put("centerLongitude", centerLongitude);
+        params.put("radiusMeters", radiusInKilometers == null ? null : radiusInKilometers.multiply(BigDecimal.valueOf(1000)));
         return params;
     }
 
@@ -179,6 +208,8 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
         private final String postalCode;
         private final String propertyType;
         private final String description;
+        private final BigDecimal latitude;
+        private final BigDecimal longitude;
         private final BigDecimal areaInSquareMeter;
         private final BigDecimal evaluationMarketValue;
         private final Double score;
@@ -190,6 +221,8 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
                 String postalCode,
                 String propertyType,
                 String description,
+                BigDecimal latitude,
+                BigDecimal longitude,
                 BigDecimal areaInSquareMeter,
                 BigDecimal evaluationMarketValue,
                 Double score
@@ -200,6 +233,8 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
             this.postalCode = postalCode;
             this.propertyType = propertyType;
             this.description = description;
+            this.latitude = latitude;
+            this.longitude = longitude;
             this.areaInSquareMeter = areaInSquareMeter;
             this.evaluationMarketValue = evaluationMarketValue;
             this.score = score;
@@ -215,7 +250,9 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
                     (String) row[5],
                     toBigDecimal(row[6]),
                     toBigDecimal(row[7]),
-                    row[8] == null ? 0.0d : ((Number) row[8]).doubleValue()
+                    toBigDecimal(row[8]),
+                    toBigDecimal(row[9]),
+                    row[10] == null ? 0.0d : ((Number) row[10]).doubleValue()
             );
         }
 
@@ -260,6 +297,16 @@ public class MariaDBFullTextSearchRepositoryImpl implements MariaDBFullTextSearc
         @Override
         public String getDescription() {
             return description;
+        }
+
+        @Override
+        public BigDecimal getLatitude() {
+            return latitude;
+        }
+
+        @Override
+        public BigDecimal getLongitude() {
+            return longitude;
         }
 
         @Override

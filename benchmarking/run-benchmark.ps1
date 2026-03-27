@@ -68,6 +68,17 @@ $scenarios = @(
             maxAreaInSquareMeter = 150
             limit = 20
         }
+    },
+    [PSCustomObject]@{
+        name = "geo_modern_berlin_5km"
+        body = @{
+            queryText = "modern"
+            city = "Berlin"
+            centerLatitude = 52.520008
+            centerLongitude = 13.404954
+            radiusInKilometers = 5
+            limit = 20
+        }
     }
 )
 

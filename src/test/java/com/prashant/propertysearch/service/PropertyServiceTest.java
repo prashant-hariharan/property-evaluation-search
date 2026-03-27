@@ -51,7 +51,9 @@ class PropertyServiceTest {
                 BigDecimal.valueOf(80),
                 2018,
                 PropertyType.APARTMENT,
-                "Test description"
+                "Test description",
+                null,
+                null
         );
         Property entity = Property.builder().title("Test Property").build();
         UUID propertyId = UUID.randomUUID();

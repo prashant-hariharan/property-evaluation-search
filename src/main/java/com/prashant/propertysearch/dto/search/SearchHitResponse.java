@@ -15,6 +15,8 @@ public class SearchHitResponse {
     private String postalCode;
     private String propertyType;
     private String description;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
     private BigDecimal areaInSquareMeter;
     private BigDecimal evaluationMarketValue;
     private float score;

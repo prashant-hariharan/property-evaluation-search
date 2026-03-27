@@ -372,6 +372,67 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "5 - Geo Radius",
+          "item": [
+            {
+              "name": "Lucene - Geo Radius Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"modern\",\n  \"city\": \"Berlin\",\n  \"centerLatitude\": 52.520008,\n  \"centerLongitude\": 13.404954,\n  \"radiusInKilometers\": 5,\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/lucene/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "MariaDB FTS - Geo Radius Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"modern\",\n  \"city\": \"Berlin\",\n  \"centerLatitude\": 52.520008,\n  \"centerLongitude\": 13.404954,\n  \"radiusInKilometers\": 5,\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mariadb-fts/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mariadb-fts",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }

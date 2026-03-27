@@ -5,6 +5,7 @@ import com.prashant.propertysearch.entity.PropertyEvaluation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoublePoint;
+import org.apache.lucene.document.LatLonPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -18,6 +19,9 @@ import static com.prashant.propertysearch.utils.LuceneDocumentFields.CITY;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.CITY_FILTER;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.DESCRIPTION;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.EVALUATION_MARKET_VALUE;
+import static com.prashant.propertysearch.utils.LuceneDocumentFields.GEO_POINT;
+import static com.prashant.propertysearch.utils.LuceneDocumentFields.LATITUDE;
+import static com.prashant.propertysearch.utils.LuceneDocumentFields.LONGITUDE;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.POSTAL_CODE;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.POSTAL_CODE_FILTER;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.PROPERTY_ID;
@@ -44,6 +48,14 @@ public final class LuceneDocumentUtils {
 
         document.add(new DoublePoint(AREA_IN_SQUARE_METER, property.getAreaInSquareMeter().doubleValue()));
         document.add(new StoredField(AREA_IN_SQUARE_METER, property.getAreaInSquareMeter().doubleValue()));
+
+        if (property.getLatitude() != null && property.getLongitude() != null) {
+            double latitude = property.getLatitude().doubleValue();
+            double longitude = property.getLongitude().doubleValue();
+            document.add(new LatLonPoint(GEO_POINT, latitude, longitude));
+            document.add(new StoredField(LATITUDE, latitude));
+            document.add(new StoredField(LONGITUDE, longitude));
+        }
 
         BigDecimal latestMarketValue = Optional.ofNullable(latestEvaluation)
                 .map(PropertyEvaluation::getMarketValue)
