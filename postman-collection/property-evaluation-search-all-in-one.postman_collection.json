@@ -17,13 +17,12 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/lucene/test-data/generate?propertyCount=200000&batchSize=200&clearExistingData=true&reindexAfterGeneration=false",
+              "raw": "{{baseUrl}}/api/test-data/generate?propertyCount=200000&batchSize=200&clearExistingData=true&reindexAfterGeneration=false",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "lucene",
                 "test-data",
                 "generate"
               ],

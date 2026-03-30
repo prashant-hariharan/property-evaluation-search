@@ -135,11 +135,11 @@ Use the all-in-one collection:
 After the app starts, run these two endpoints before search demos:
 You can invoke these endpoints either via Swagger UI or the Postman collection.
 
-1. `POST /api/lucene/test-data/generate?propertyCount=20000&batchSize=200&clearExistingData=true&reindexAfterGeneration=false`
+1. `POST /api/test-data/generate?propertyCount=20000&batchSize=200&clearExistingData=true&reindexAfterGeneration=false`
 2. `POST /api/lucene/reindex`
 
 This loads benchmark data first and then builds the Lucene index with lower overall load.
-`/api/lucene/test-data/generate` creates synthetic properties/evaluations (including deterministic comparison fixtures and city-based geo coordinates) in batches, and `/api/lucene/reindex` rebuilds the Lucene index from database records.
+`/api/test-data/generate` creates synthetic properties/evaluations (including deterministic comparison fixtures and city-based geo coordinates) in batches, and `/api/lucene/reindex` rebuilds the Lucene index from database records.
 
 ## Benchmark (Optional)
 
