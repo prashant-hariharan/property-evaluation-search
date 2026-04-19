@@ -40,6 +40,9 @@ app:
     log-queries: false
   lucene:
     index-path: ${LUCENE_INDEX_PATH:./index/lucene/${spring.application.name}}
+  opensearch:
+    base-url: ${OPENSEARCH_URL:http://localhost:9200}
+    index-name: ${OPENSEARCH_INDEX_NAME:property-evaluation-search}
 
 management:
   info:

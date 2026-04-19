@@ -35,7 +35,7 @@ class TestDataGenerationControllerTest {
     @Test
     void generateTestData_returnsSummaryAndUsesDefaultParameters() throws Exception {
         TestDataGenerationService.TestDataGenerationSummary summary =
-                new TestDataGenerationService.TestDataGenerationSummary(100000, 100000, 100000, 99999, 1234L);
+                new TestDataGenerationService.TestDataGenerationSummary(100000, 100000, 100000, 99999, 99998, 1234L);
         when(testDataGenerationService.generate(100000, 100, true, true)).thenReturn(summary);
 
         mockMvc.perform(post("/api/test-data/generate"))
@@ -44,6 +44,7 @@ class TestDataGenerationControllerTest {
                 .andExpect(jsonPath("$.createdProperties").value(100000))
                 .andExpect(jsonPath("$.createdEvaluations").value(100000))
                 .andExpect(jsonPath("$.reindexedDocuments").value(99999))
+                .andExpect(jsonPath("$.openSearchReindexedDocuments").value(99998))
                 .andExpect(jsonPath("$.durationMs").value(1234));
 
         verify(testDataGenerationService).generate(100000, 100, true, true);

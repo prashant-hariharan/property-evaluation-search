@@ -31,7 +31,7 @@ public class TestDataGenerationController {
     private final TestDataGenerationService testDataGenerationService;
 
     @PostMapping("/generate")
-    @Operation(summary = "Generate synthetic benchmark data and optionally reindex Lucene")
+    @Operation(summary = "Generate synthetic benchmark data and optionally reindex Lucene and OpenSearch")
     public ResponseEntity<Map<String, Object>> generateTestData(
             @RequestParam(defaultValue = "100000") @Min(1) @Max(1000000) int propertyCount,
             @RequestParam(defaultValue = "100") @Min(100) @Max(10000) int batchSize,
@@ -49,6 +49,7 @@ public class TestDataGenerationController {
         response.put("createdProperties", summary.createdProperties());
         response.put("createdEvaluations", summary.createdEvaluations());
         response.put("reindexedDocuments", summary.reindexedDocuments());
+        response.put("openSearchReindexedDocuments", summary.openSearchReindexedDocuments());
         response.put("durationMs", summary.durationMs());
         return ResponseEntity.ok(response);
     }

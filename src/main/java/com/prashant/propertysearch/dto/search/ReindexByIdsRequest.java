@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 
-public record LuceneReindexByIdsRequest(
+public record ReindexByIdsRequest(
         @NotEmpty
         List<@NotNull UUID> propertyIds
 ) {

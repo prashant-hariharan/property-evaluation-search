@@ -3,6 +3,7 @@ package com.prashant.propertysearch.listener;
 import com.prashant.propertysearch.event.PropertyChangedEvent;
 import com.prashant.propertysearch.event.PropertyEvaluationChangedEvent;
 import com.prashant.propertysearch.service.lucene.LuceneIndexerService;
+import com.prashant.propertysearch.service.opensearch.OpenSearchIndexerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -16,9 +17,14 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class PropertySearchIndexEventListener {
 
     private final LuceneIndexerService luceneIndexerService;
+    private final OpenSearchIndexerService openSearchIndexerService;
 
-    public PropertySearchIndexEventListener(LuceneIndexerService luceneIndexerService) {
+    public PropertySearchIndexEventListener(
+        LuceneIndexerService luceneIndexerService,
+        OpenSearchIndexerService openSearchIndexerService
+    ) {
         this.luceneIndexerService = luceneIndexerService;
+        this.openSearchIndexerService = openSearchIndexerService;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -32,11 +38,13 @@ public class PropertySearchIndexEventListener {
         try {
             if (event.action() == PropertyChangedEvent.Action.DELETE) {
                 luceneIndexerService.deletePropertyDocument(event.propertyId());
+                openSearchIndexerService.deletePropertyDocument(event.propertyId());
                 return;
             }
             luceneIndexerService.upsertPropertyDocument(event.propertyId());
+            openSearchIndexerService.upsertPropertyDocument(event.propertyId());
         } catch (Exception e) {
-            log.error("Failed to modify Lucene index for property change. action={} propertyId={} error={}",
+            log.error("Failed to modify search indexes for property change. action={} propertyId={} error={}",
                 event.action(),
                 event.propertyId(),
                 e.getMessage(),
@@ -56,8 +64,9 @@ public class PropertySearchIndexEventListener {
     public void onPropertyEvaluationChanged(PropertyEvaluationChangedEvent event) {
         try {
             luceneIndexerService.upsertPropertyDocument(event.propertyId());
+            openSearchIndexerService.upsertPropertyDocument(event.propertyId());
         } catch (Exception e) {
-            log.error("Failed to modify Lucene index for property evaluation change. propertyId={} error={}",
+            log.error("Failed to modify search indexes for property evaluation change. propertyId={} error={}",
                 event.propertyId(),
                 e.getMessage(),
                 e

@@ -1,7 +1,7 @@
 # Property Evaluation Search
 
-`property-evaluation-search` is a Spring Boot service for managing property/evaluation data in MariaDB and searching indexed property content with Apache Lucene.  
-The project is designed to compare search quality between Lucene and MariaDB Full-Text Search, especially for advanced features like synonyms, fuzzy matching, and field boosting.
+`property-evaluation-search` is a Spring Boot service for managing property/evaluation data in MariaDB and searching indexed property content with Apache Lucene and OpenSearch.  
+The project is designed to compare search quality between Lucene, OpenSearch, and MariaDB Full-Text Search, especially for advanced features like synonyms, fuzzy matching, and field boosting.
 
 ## Prerequisites
 
@@ -9,12 +9,14 @@ The project is designed to compare search quality between Lucene and MariaDB Ful
 - Maven `3.9+` (optional, for local non-Docker runs; Docker build handles Maven internally)
 - Docker + Docker Compose
 - MariaDB `11.0.6` (provided by `docker-compose.yml`)
+- OpenSearch (provided by `docker-compose.yml`)
 
 ## Core Tech Stack
 
 - Java: `21`
 - Spring Boot: `4.0.3`
 - Apache Lucene: `9.11.1`
+- OpenSearch: latest (`opensearchproject/opensearch`)
 - MariaDB: `11.0.6`
 - Maven: `3.9+`
 - Docker / Docker Compose: latest compatible versions
@@ -31,13 +33,15 @@ DB_URL=jdbc:mariadb://localhost:3306/property_search
 DB_USER=admin
 DB_PASSWORD=admin123
 LUCENE_INDEX_PATH=C:/tmp/property-search/lucene-index
+OPENSEARCH_URL=http://localhost:9200
 ```
 
 Notes:
 - Spring picks these values from `application.yml`.
 - Lucene index path defaults to `./index/lucene/${spring.application.name}` unless `LUCENE_INDEX_PATH` is overridden (for example via `.env`).
+- OpenSearch base URL defaults to `http://localhost:9200` unless `OPENSEARCH_URL` is overridden.
 
-## Start MariaDB with Docker Compose
+## Start Dependencies with Docker Compose
 
 From project root:
 
@@ -71,12 +75,12 @@ Liquibase migrations run automatically on startup.
 
 ## Run App in Docker
 
-Use Docker Compose only for MariaDB, and run the app as a separate container.
+Use Docker Compose for MariaDB and OpenSearch, and run the app as a separate container.
 Liquibase migrations run automatically when the app container starts.
 
 No separate `mvn install` step is required here. The Docker multi-stage build runs Maven during image build.
 
-1. Start MariaDB:
+1. Start MariaDB and OpenSearch:
 ```bash
 docker compose up -d
 ```
@@ -135,15 +139,17 @@ Use the all-in-one collection:
 After the app starts, run these two endpoints before search demos:
 You can invoke these endpoints either via Swagger UI or the Postman collection.
 
-1. `POST /api/test-data/generate?propertyCount=20000&batchSize=200&clearExistingData=true&reindexAfterGeneration=false`
-2. `POST /api/lucene/reindex`
+1. `POST /api/test-data/generate?propertyCount=20000&batchSize=200&clearExistingData=true&reindexAfterGeneration=true`
 
-This loads benchmark data first and then builds the Lucene index with lower overall load.
-`/api/test-data/generate` creates synthetic properties/evaluations (including deterministic comparison fixtures and city-based geo coordinates) in batches, and `/api/lucene/reindex` rebuilds the Lucene index from database records.
+`/api/test-data/generate` creates synthetic properties/evaluations (including deterministic comparison fixtures and city-based geo coordinates) in batches, and when `reindexAfterGeneration=true` it rebuilds both Lucene and OpenSearch indexes from database records.
+
+Optional manual reindex endpoints:
+1. `POST /api/lucene/reindex`
+2. `POST /api/opensearch/reindex`
 
 ## Benchmark (Optional)
 
-Use the benchmark script to compare Lucene vs MariaDB FTS latency by scenario.
+Use the benchmark script to compare Lucene vs OpenSearch vs MariaDB FTS latency by scenario.
 
 Script path:
 - `benchmarking/run-benchmark.ps1`
@@ -153,7 +159,7 @@ For more details, refer to `benchmarking/benchmarking.docx`.
 
 Default behavior:
 - Assumes the app is already running on `http://localhost:8080`
-- Assumes data is already loaded and Lucene is already indexed
+- Assumes data is already loaded and Lucene/OpenSearch are already indexed
 - Runs warmup + measured iterations and outputs `p50` / `p95` per scenario
 - Writes result files in the same folder as the script (`benchmarking/`)
 - PowerShell and Bash scripts are equivalent versions of the same benchmark flow
@@ -196,6 +202,12 @@ Lucene index fields used by this project:
 - Geo field: `geoPoint` (distance filtering) with stored `latitude`/`longitude`
 - Numeric range fields: `areaInSquareMeter`, `evaluationMarketValue`
 
+OpenSearch index fields used by this project:
+- Text search fields: `title`, `description`, `city` (analyzed with `property_text_analyzer`)
+- Exact/filter fields: `propertyType`, `cityFilter`, `postalCodeFilter`
+- Geo field: `geoPoint` (distance filtering) with stored `latitude`/`longitude`
+- Numeric range fields: `areaInSquareMeter`, `evaluationMarketValue`
+
 MariaDB search indexes used by this project:
 - Full-text index: `ftx_properties_title_description` on `properties(title, description)`
 - Query-time geo filter: `ST_Distance_Sphere(POINT(longitude, latitude), POINT(:centerLongitude, :centerLatitude))`
@@ -209,4 +221,13 @@ Analyzer and index/storage behavior used by this project:
 - Analyzer pipeline: `StandardTokenizer` -> `LowerCaseFilter` -> `SynonymGraphFilter`
 - Geo filtering: Lucene `LatLonPoint.newDistanceQuery(...)` on `geoPoint`
 - Synonym pairs (bidirectional): `flat <-> apartment`, `garage <-> parking`, `metro <-> subway`, `loft <-> studio`
+
+### OpenSearch Setup Notes
+
+OpenSearch behavior used by this project:
+
+- Endpoint base URL: `app.opensearch.base-url` (defaults to `http://localhost:9200`)
+- Index name: `app.opensearch.index-name` (defaults to `property-evaluation-search`)
+- Analyzer: `property_text_analyzer` using `standard` tokenizer + `lowercase` + `synonym_graph`
+- Synonym pairs: `flat <-> apartment`, `garage <-> parking`, `metro <-> subway`, `loft <-> studio`
 

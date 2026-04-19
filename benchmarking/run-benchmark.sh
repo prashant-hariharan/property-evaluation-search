@@ -37,7 +37,7 @@ trap 'rm -f "${TMP_CSV}" "${RESP_FILE}"' EXIT
 
 assert_app_running() {
   if ! curl -sS --max-time 3 "${BASE_URL}/api-docs" >/dev/null; then
-    echo "Application is not reachable at ${BASE_URL}. Start the app with preloaded MariaDB data and Lucene index, then rerun."
+    echo "Application is not reachable at ${BASE_URL}. Start the app with preloaded MariaDB data and Lucene/OpenSearch indexes, then rerun."
     exit 1
   fi
 }
@@ -96,14 +96,14 @@ SCENARIOS=(
 )
 
 assert_app_running
-echo "Running benchmark using preloaded MariaDB data and existing Lucene index."
+echo "Running benchmark using preloaded MariaDB data and existing Lucene/OpenSearch indexes."
 
 echo "scenario,engine,elapsed_ms,total_hits" > "${TMP_CSV}"
 
 for entry in "${SCENARIOS[@]}"; do
   scenario="${entry%%|*}"
   body="${entry#*|}"
-  for engine in lucene mariadb-fts; do
+  for engine in lucene opensearch mariadb-fts; do
     url="${BASE_URL}/api/${engine}/search"
     echo "Warmup: scenario=${scenario}, engine=${engine}"
     for ((i=0; i<WARMUP; i++)); do
@@ -123,6 +123,7 @@ done
   echo "scenario,engine,iterations,warmup,avgMs,p50Ms,p95Ms,minMs,maxMs,totalHits"
   while IFS='|' read -r scenario _; do
     compute_stats "$scenario" "lucene"
+    compute_stats "$scenario" "opensearch"
     compute_stats "$scenario" "mariadb-fts"
   done < <(printf '%s\n' "${SCENARIOS[@]}")
 } > "${CSV_PATH}"

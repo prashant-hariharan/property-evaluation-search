@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "cf8526ab-e172-42ef-b4bd-f05399519c56",
     "name": "Property Evaluation Search - All In One",
-    "description": "Single import collection with setup, Lucene demo, MariaDB FTS demo, and side-by-side comparison scenarios.",
+    "description": "Single import collection with setup, Lucene/OpenSearch demo, MariaDB FTS demo, and side-by-side comparison scenarios.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "30434122",
     "_collection_link": "https://go.postman.co/collection/30434122-cf8526ab-e172-42ef-b4bd-f05399519c56?source=collection_link"
@@ -66,6 +66,25 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Reindex All (OpenSearch Manual)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/opensearch/reindex",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "opensearch",
+                "reindex"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -97,6 +116,34 @@
                   "path": [
                     "api",
                     "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "OpenSearch - Baseline Keyword Search",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"Natural Light\",\n  \"city\": \"Nuremberg\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/opensearch/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "opensearch",
                     "search"
                   ]
                 }
@@ -153,6 +200,34 @@
                   "path": [
                     "api",
                     "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "OpenSearch - Multi criteria Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"waterfront loft\",\n  \"city\": \"Frankfurt\",\n  \"propertyType\": \"APARTMENT\",\n  \"minAreaInSquareMeter\": 79,\n  \"maxAreaInSquareMeter\": 92,\n  \"minMarketValue\": 640000,\n  \"maxMarketValue\": 735000,\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/opensearch/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "opensearch",
                     "search"
                   ]
                 }
@@ -221,6 +296,34 @@
               "response": []
             },
             {
+              "name": "OpenSearch - Synonym Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"flat with parking\",\n  \"city\": \"Berlin\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/opensearch/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "opensearch",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "MariaDB FTS - Synonym Query",
               "request": {
                 "method": "POST",
@@ -275,6 +378,34 @@
                   "path": [
                     "api",
                     "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "OpenSearch - Fuzzy City Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"flat\",\n  \"city\": \"Berln\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/opensearch/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "opensearch",
                     "search"
                   ]
                 }
@@ -343,6 +474,34 @@
               "response": []
             },
             {
+              "name": "OpenSearch - Title Boosting Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"waterfront loft\",\n  \"city\": \"Frankfurt\",\n  \"propertyType\": \"APARTMENT\",\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/opensearch/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "opensearch",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "MariaDB FTS - Title Boosting Query",
               "request": {
                 "method": "POST",
@@ -397,6 +556,34 @@
                   "path": [
                     "api",
                     "lucene",
+                    "search"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "OpenSearch - Geo Radius Query",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queryText\": \"modern\",\n  \"city\": \"Berlin\",\n  \"centerLatitude\": 52.520008,\n  \"centerLongitude\": 13.404954,\n  \"radiusInKilometers\": 5,\n  \"limit\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/opensearch/search",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "opensearch",
                     "search"
                   ]
                 }

@@ -6,6 +6,7 @@ import com.prashant.propertysearch.entity.PropertyType;
 import com.prashant.propertysearch.repository.PropertyEvaluationRepository;
 import com.prashant.propertysearch.repository.PropertyRepository;
 import com.prashant.propertysearch.service.lucene.LuceneIndexerService;
+import com.prashant.propertysearch.service.opensearch.OpenSearchIndexerService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Service responsible for generating synthetic test data for properties and property evaluations.
  * This class provides utilities to generate batches of property and evaluation data for testing purposes.
- * It can also handle clearing existing data and reindexing Lucene indexes after data generation.
+ * It can also handle clearing existing data and reindexing Lucene/OpenSearch indexes after data generation.
  *
  * The synthetic data is generated using predefined sets of city, street, and description values,
  * along with various randomization techniques to provide variability in the generated data.
@@ -73,6 +74,7 @@ public class TestDataGenerationService {
     private final PropertyRepository propertyRepository;
     private final PropertyEvaluationRepository propertyEvaluationRepository;
     private final LuceneIndexerService luceneIndexerService;
+    private final OpenSearchIndexerService openSearchIndexerService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -128,10 +130,15 @@ public class TestDataGenerationService {
         }
 
         Integer reindexedDocuments = null;
+        Integer openSearchReindexedDocuments = null;
         if (reindexAfterGeneration) {
             log.info("Triggering Lucene reindex after synthetic data generation");
             reindexedDocuments = luceneIndexerService.reindexAll();
             log.info("Lucene reindex after generation completed. reindexedDocuments={}", reindexedDocuments);
+
+            log.info("Triggering OpenSearch reindex after synthetic data generation");
+            openSearchReindexedDocuments = openSearchIndexerService.reindexAll();
+            log.info("OpenSearch reindex after generation completed. reindexedDocuments={}", openSearchReindexedDocuments);
         }
 
         long durationMs = (System.nanoTime() - startNs) / 1_000_000L;
@@ -142,6 +149,7 @@ public class TestDataGenerationService {
                 createdProperties,
                 createdEvaluations,
                 reindexedDocuments,
+                openSearchReindexedDocuments,
                 durationMs
         );
     }
@@ -448,6 +456,7 @@ public class TestDataGenerationService {
             int createdProperties,
             int createdEvaluations,
             Integer reindexedDocuments,
+            Integer openSearchReindexedDocuments,
             long durationMs
     ) {
     }

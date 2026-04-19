@@ -17,7 +17,7 @@ function Assert-AppRunning {
     try {
         Invoke-WebRequest -Uri "$Url/api-docs" -UseBasicParsing -TimeoutSec 3 | Out-Null
     } catch {
-        throw "Application is not reachable at $Url. Start the app with preloaded MariaDB data and Lucene index, then rerun."
+        throw "Application is not reachable at $Url. Start the app with preloaded MariaDB data and Lucene/OpenSearch indexes, then rerun."
     }
 }
 
@@ -47,7 +47,7 @@ function Percentile {
 }
 
 Assert-AppRunning -Url $BaseUrl
-Write-Host "Running benchmark using preloaded MariaDB data and existing Lucene index."
+Write-Host "Running benchmark using preloaded MariaDB data and existing Lucene/OpenSearch indexes."
 
 $scenarios = @(
     [PSCustomObject]@{
@@ -85,7 +85,7 @@ $scenarios = @(
 $rows = New-Object System.Collections.Generic.List[object]
 
 foreach ($scenario in $scenarios) {
-    foreach ($engine in @("lucene", "mariadb-fts")) {
+    foreach ($engine in @("lucene", "opensearch", "mariadb-fts")) {
         $url = "$BaseUrl/api/$engine/search"
         Write-Host "Warmup: scenario=$($scenario.name), engine=$engine"
         for ($i = 0; $i -lt $Warmup; $i++) {
