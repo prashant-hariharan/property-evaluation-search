@@ -1,0 +1,80 @@
+﻿[
+    {
+        "scenario":  "baseline_natural_light",
+        "engine":  "lucene",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  29.849,
+        "p50Ms":  27.606,
+        "p95Ms":  45.336,
+        "minMs":  21.898,
+        "maxMs":  48.381,
+        "totalHits":  303,
+        "measuredAt":  "2026-03-26T11:44:44"
+    },
+    {
+        "scenario":  "baseline_natural_light",
+        "engine":  "mariadb-fts",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  157.201,
+        "p50Ms":  150.44,
+        "p95Ms":  211.71,
+        "minMs":  142.141,
+        "maxMs":  246.366,
+        "totalHits":  303,
+        "measuredAt":  "2026-03-26T11:44:50"
+    },
+    {
+        "scenario":  "modern_area_berlin",
+        "engine":  "lucene",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  31.482,
+        "p50Ms":  29.588,
+        "p95Ms":  45.964,
+        "minMs":  21.04,
+        "maxMs":  50.245,
+        "totalHits":  1043,
+        "measuredAt":  "2026-03-26T11:44:52"
+    },
+    {
+        "scenario":  "modern_area_berlin",
+        "engine":  "mariadb-fts",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  276.05,
+        "p50Ms":  258.964,
+        "p95Ms":  408.628,
+        "minMs":  244.513,
+        "maxMs":  408.85,
+        "totalHits":  1043,
+        "measuredAt":  "2026-03-26T11:45:01"
+    },
+    {
+        "scenario":  "geo_modern_berlin_5km",
+        "engine":  "lucene",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  26.81,
+        "p50Ms":  24.347,
+        "p95Ms":  41.815,
+        "minMs":  18.269,
+        "maxMs":  44.947,
+        "totalHits":  917,
+        "measuredAt":  "2026-03-26T11:45:03"
+    },
+    {
+        "scenario":  "geo_modern_berlin_5km",
+        "engine":  "mariadb-fts",
+        "iterations":  30,
+        "warmup":  5,
+        "avgMs":  252.303,
+        "p50Ms":  246.913,
+        "p95Ms":  321.488,
+        "minMs":  238.588,
+        "maxMs":  322.37,
+        "totalHits":  917,
+        "measuredAt":  "2026-03-26T11:45:12"
+    }
+]

@@ -9,14 +9,14 @@ The project is designed to compare search quality between Lucene, OpenSearch, an
 - Maven `3.9+` (optional, for local non-Docker runs; Docker build handles Maven internally)
 - Docker + Docker Compose
 - MariaDB `11.0.6` (provided by `docker-compose.yml`)
-- OpenSearch (provided by `docker-compose.yml`)
+- OpenSearch `2.19.1` (provided by `docker-compose.yml`)
 
 ## Core Tech Stack
 
 - Java: `21`
 - Spring Boot: `4.0.3`
 - Apache Lucene: `9.11.1`
-- OpenSearch: latest (`opensearchproject/opensearch`)
+- OpenSearch: `2.19.1` (`opensearchproject/opensearch:2.19.1`)
 - MariaDB: `11.0.6`
 - Maven: `3.9+`
 - Docker / Docker Compose: latest compatible versions
@@ -40,6 +40,8 @@ Notes:
 - Spring picks these values from `application.yml`.
 - Lucene index path defaults to `./index/lucene/${spring.application.name}` unless `LUCENE_INDEX_PATH` is overridden (for example via `.env`).
 - OpenSearch base URL defaults to `http://localhost:9200` unless `OPENSEARCH_URL` is overridden.
+- If the app runs on your host machine, use `OPENSEARCH_URL=http://localhost:9200`.
+- If the app runs in Docker, use `OPENSEARCH_URL=http://host.docker.internal:9200` (or `http://opensearch:9200` when both containers are on the same Compose network).
 
 ## Start Dependencies with Docker Compose
 
@@ -100,6 +102,7 @@ docker run --name property-search-app --rm \
   --env-file .env \
   --add-host=host.docker.internal:host-gateway \
   -e DB_URL=jdbc:mariadb://host.docker.internal:3306/property_search \
+  -e OPENSEARCH_URL=http://host.docker.internal:9200 \
   -e LUCENE_INDEX_PATH=/var/lib/property-search/lucene-indexes/property-evaluation \
   -p 8080:8080 \
   -v property_search_lucene_index:/var/lib/property-search/lucene-indexes \
@@ -112,6 +115,7 @@ docker run --name property-search-app --rm `
   --env-file .env `
   --add-host=host.docker.internal:host-gateway `
   -e DB_URL=jdbc:mariadb://host.docker.internal:3306/property_search `
+  -e OPENSEARCH_URL=http://host.docker.internal:9200 `
   -e LUCENE_INDEX_PATH=/var/lib/property-search/lucene-indexes/property-evaluation `
   -p 8080:8080 `
   -v property_search_lucene_index:/var/lib/property-search/lucene-indexes `
@@ -120,6 +124,7 @@ docker run --name property-search-app --rm `
 
 Notes:
 - `LUCENE_INDEX_PATH` is overridden in Docker to a container path backed by a Docker volume.
+- `OPENSEARCH_URL` should point to a Docker-reachable host from the app container (typically `http://host.docker.internal:9200`).
 - If you run the app as a local JAR instead, it uses `./index/lucene/...` by default.
 
 ## API Docs

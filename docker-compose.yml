@@ -18,13 +18,14 @@ services:
       timeout: 5s
       retries: 10
   opensearch:
-    image: opensearchproject/opensearch:latest
+    image: opensearchproject/opensearch:2.19.1
     container_name: opensearch-poc
     restart: unless-stopped
     environment:
       discovery.type: single-node
-      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
-      plugins.security.disabled: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms786m -Xmx1024m"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
     ulimits:
       memlock:
         soft: -1
@@ -37,6 +38,11 @@ services:
       - "9600:9600"
     volumes:
       - opensearch_data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
 volumes:
   mariadb_data:

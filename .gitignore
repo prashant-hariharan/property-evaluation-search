@@ -39,8 +39,6 @@ build/
 index/
 
 # Generated benchmark outputs (scripts stay tracked)
-benchmarking/benchmark-*.csv
-benchmarking/benchmark-*.json
-benchmarking/*.xlsx
+
 
 tmp/*
