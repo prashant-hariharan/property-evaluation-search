@@ -1,10 +1,10 @@
 package com.prashant.propertysearch.service.opensearch;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prashant.propertysearch.dto.search.OpenSearchSearchResultDto;
 import com.prashant.propertysearch.dto.search.SearchHitResponse;
 import com.prashant.propertysearch.dto.search.SearchRequest;
 import com.prashant.propertysearch.dto.search.SearchResponse;
+import com.prashant.propertysearch.mapper.SearchMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,12 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.AREA_IN_SQUARE_METER;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.CITY;
@@ -26,11 +24,7 @@ import static com.prashant.propertysearch.utils.LuceneDocumentFields.CITY_FILTER
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.DESCRIPTION;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.EVALUATION_MARKET_VALUE;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.GEO_POINT;
-import static com.prashant.propertysearch.utils.LuceneDocumentFields.LATITUDE;
-import static com.prashant.propertysearch.utils.LuceneDocumentFields.LONGITUDE;
-import static com.prashant.propertysearch.utils.LuceneDocumentFields.POSTAL_CODE;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.POSTAL_CODE_FILTER;
-import static com.prashant.propertysearch.utils.LuceneDocumentFields.PROPERTY_ID;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.PROPERTY_TYPE;
 import static com.prashant.propertysearch.utils.LuceneDocumentFields.TITLE;
 import static com.prashant.propertysearch.utils.LuceneDocumentUtils.normalizeFilterValue;
@@ -46,7 +40,7 @@ public class OpenSearchSearchService {
     private static final float FUZZY_QUERY_BOOST = 0.5f;
 
     private final RestClient openSearchRestClient;
-    private final ObjectMapper objectMapper;
+    private final SearchMapper searchMapper;
 
     @Value("${app.opensearch.index-name:property-evaluation-search}")
     private String indexName;
@@ -61,14 +55,14 @@ public class OpenSearchSearchService {
             log.info("Sending OpenSearch query. query={}", searchBody);
         }
 
-        String responseBody;
+        OpenSearchSearchResultDto responseBody;
         try {
             responseBody = openSearchRestClient.post()
                     .uri("/{index}/_search", indexName)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(searchBody)
                     .retrieve()
-                    .body(String.class);
+                    .body(OpenSearchSearchResultDto.class);
         } catch (RestClientResponseException e) {
             throw new IllegalStateException("Failed to execute OpenSearch search", e);
         }
@@ -188,51 +182,47 @@ public class OpenSearchSearchService {
         );
     }
 
-    private SearchResponse parseSearchResponse(String responseBody) {
-        if (responseBody == null || responseBody.isBlank()) {
+    private SearchResponse parseSearchResponse(OpenSearchSearchResultDto responseBody) {
+        if (responseBody == null || responseBody.getHits() == null) {
             throw new IllegalStateException("OpenSearch search response body is empty");
         }
 
-        try {
-            JsonNode root = objectMapper.readTree(responseBody);
-            JsonNode hitsNode = root.path("hits");
-            int totalHits = hitsNode.path("total").path("value").asInt(0);
+        OpenSearchSearchResultDto.HitsDto hitsDto = responseBody.getHits();
+        int totalHits = hitsDto.getTotal() == null || hitsDto.getTotal().getValue() == null
+                ? 0
+                : hitsDto.getTotal().getValue();
 
-            List<SearchHitResponse> hits = new ArrayList<>();
-            for (JsonNode hitNode : hitsNode.path("hits")) {
-                JsonNode source = hitNode.path("_source");
-                SearchHitResponse hit = new SearchHitResponse();
-                String propertyId = source.path(PROPERTY_ID).asText(null);
-                if (propertyId != null) {
-                    hit.setPropertyId(UUID.fromString(propertyId));
+        List<SearchHitResponse> hits = new ArrayList<>();
+        if (hitsDto.getHits() != null) {
+            for (OpenSearchSearchResultDto.HitDto hitDto : hitsDto.getHits()) {
+                OpenSearchSearchResultDto.SourceDto source = hitDto.getSource();
+                SearchHitResponse hit;
+                if (source != null) {
+                    hit = searchMapper.toSearchHit(
+                            source.getPropertyId(),
+                            source.getTitle(),
+                            source.getCity(),
+                            source.getPostalCode(),
+                            source.getPropertyType(),
+                            source.getDescription(),
+                            source.getLatitude(),
+                            source.getLongitude(),
+                            source.getAreaInSquareMeter(),
+                            source.getEvaluationMarketValue(),
+                            hitDto.getScore() == null ? 0.0f : hitDto.getScore().floatValue()
+                    );
+                } else {
+                    hit = new SearchHitResponse();
+                    hit.setScore(hitDto.getScore() == null ? 0.0f : hitDto.getScore().floatValue());
                 }
-                hit.setTitle(source.path(TITLE).asText(null));
-                hit.setCity(source.path(CITY).asText(null));
-                hit.setPostalCode(source.path(POSTAL_CODE).asText(null));
-                hit.setPropertyType(source.path(PROPERTY_TYPE).asText(null));
-                hit.setDescription(source.path(DESCRIPTION).asText(null));
-                hit.setLatitude(toBigDecimal(source.path(LATITUDE)));
-                hit.setLongitude(toBigDecimal(source.path(LONGITUDE)));
-                hit.setAreaInSquareMeter(toBigDecimal(source.path(AREA_IN_SQUARE_METER)));
-                hit.setEvaluationMarketValue(toBigDecimal(source.path(EVALUATION_MARKET_VALUE)));
-                hit.setScore((float) hitNode.path("_score").asDouble(0.0d));
                 hits.add(hit);
             }
-
-            SearchResponse response = new SearchResponse();
-            response.setTotalHits(totalHits);
-            response.setHits(hits);
-            return response;
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to parse OpenSearch search response", e);
         }
-    }
 
-    private BigDecimal toBigDecimal(JsonNode node) {
-        if (node == null || node.isMissingNode() || node.isNull()) {
-            return null;
-        }
-        return BigDecimal.valueOf(node.asDouble());
+        SearchResponse response = new SearchResponse();
+        response.setTotalHits(totalHits);
+        response.setHits(hits);
+        return response;
     }
 
     private boolean hasText(String value) {

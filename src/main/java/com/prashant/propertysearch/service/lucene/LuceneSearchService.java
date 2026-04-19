@@ -3,7 +3,7 @@ package com.prashant.propertysearch.service.lucene;
 import com.prashant.propertysearch.dto.search.SearchHitResponse;
 import com.prashant.propertysearch.dto.search.SearchRequest;
 import com.prashant.propertysearch.dto.search.SearchResponse;
-import com.prashant.propertysearch.mapper.LuceneSearchMapper;
+import com.prashant.propertysearch.mapper.SearchMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.Analyzer;
@@ -79,7 +79,7 @@ public class LuceneSearchService {
 
     private final Directory directory;
     private final Analyzer analyzer;
-    private final LuceneSearchMapper luceneSearchMapper;
+    private final SearchMapper searchMapper;
     @Value("${app.search.log-queries:true}")
     private boolean logSearchQueries;
 
@@ -277,7 +277,7 @@ public class LuceneSearchService {
                 ? null
                 : document.getField(LONGITUDE).numericValue().doubleValue();
 
-        return luceneSearchMapper.toSearchHit(
+        return searchMapper.toSearchHit(
                 document.get(PROPERTY_ID),
                 document.get(TITLE),
                 document.get(CITY),

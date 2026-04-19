@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring")
-public interface LuceneSearchMapper {
+public interface SearchMapper {
 
     @Mapping(target = "propertyId", expression = "java(toUuid(propertyId))")
     @Mapping(target = "latitude", expression = "java(toBigDecimal(latitude))")
@@ -30,6 +30,9 @@ public interface LuceneSearchMapper {
     );
 
     default UUID toUuid(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
         return UUID.fromString(value);
     }
 
