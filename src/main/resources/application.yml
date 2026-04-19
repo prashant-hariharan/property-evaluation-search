@@ -43,6 +43,7 @@ app:
   opensearch:
     base-url: ${OPENSEARCH_URL:http://localhost:9200}
     index-name: ${OPENSEARCH_INDEX_NAME:property-evaluation-search}
+    initialize-on-startup: ${OPENSEARCH_INITIALIZE_ON_STARTUP:true}
 
 management:
   info:

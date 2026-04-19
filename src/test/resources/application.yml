@@ -9,3 +9,7 @@ spring:
       ddl-auto: none
   liquibase:
     enabled: false
+
+app:
+  opensearch:
+    initialize-on-startup: false

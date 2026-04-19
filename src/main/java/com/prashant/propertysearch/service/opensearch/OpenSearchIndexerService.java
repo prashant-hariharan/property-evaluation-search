@@ -57,6 +57,7 @@ public class OpenSearchIndexerService {
     private final RestClient openSearchRestClient;
     private final ObjectMapper objectMapper;
     private final String indexName;
+    private final boolean initializeOnStartup;
     private final Map<String, Object> analysisSettings;
 
     public OpenSearchIndexerService(
@@ -65,6 +66,7 @@ public class OpenSearchIndexerService {
             RestClient openSearchRestClient,
             ObjectMapper objectMapper,
             @Value("${app.opensearch.index-name:property-evaluation-search}") String indexName,
+            @Value("${app.opensearch.initialize-on-startup:true}") boolean initializeOnStartup,
             @Qualifier("openSearchAnalysisSettings") Map<String, Object> analysisSettings
     ) {
         this.propertyRepository = propertyRepository;
@@ -72,11 +74,16 @@ public class OpenSearchIndexerService {
         this.openSearchRestClient = openSearchRestClient;
         this.objectMapper = objectMapper;
         this.indexName = indexName;
+        this.initializeOnStartup = initializeOnStartup;
         this.analysisSettings = analysisSettings;
     }
 
     @PostConstruct
     void init() {
+        if (!initializeOnStartup) {
+            log.info("Skipping OpenSearch startup initialization because app.opensearch.initialize-on-startup=false");
+            return;
+        }
         ensureIndexExists();
         log.info("OpenSearch indexer initialized for index={}", indexName);
     }
